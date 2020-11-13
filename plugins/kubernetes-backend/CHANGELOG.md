@@ -1,5 +1,12 @@
 # @backstage/plugin-kubernetes-backend
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [8e2effb53]
+  - @backstage/backend-common@0.3.0
+
 ## 0.1.2
 
 ### Patch Changes

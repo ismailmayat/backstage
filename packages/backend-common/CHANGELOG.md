@@ -1,5 +1,11 @@
 # @backstage/backend-common
 
+## 0.3.0
+
+### Minor Changes
+
+- 8e2effb53: Refactored UrlReader.readTree to be required and accept (url, options)
+
 ## 0.2.1
 
 ### Patch Changes
