@@ -74,6 +74,7 @@ describe('CatalogClient', () => {
 
     it('builds entity search filters properly', async () => {
       expect.assertions(2);
+
       server.use(
         rest.get(`${mockBaseUrl}/entities`, (req, res, ctx) => {
           expect(req.url.search).toBe('?filter=a=1,b=2,b=3,%C3%B6=%3D');
@@ -82,9 +83,28 @@ describe('CatalogClient', () => {
       );
 
       const entities = await client.getEntities({
-        a: '1',
-        b: ['2', '3'],
-        ö: '=',
+        filter: {
+          a: '1',
+          b: ['2', '3'],
+          ö: '=',
+        },
+      });
+
+      expect(entities).toEqual([]);
+    });
+
+    it('builds entity field selectors properly', async () => {
+      expect.assertions(2);
+
+      server.use(
+        rest.get(`${mockBaseUrl}/entities`, (req, res, ctx) => {
+          expect(req.url.search).toBe('?fields=a.b,%C3%B6');
+          return res(ctx.json([]));
+        }),
+      );
+
+      const entities = await client.getEntities({
+        fields: ['a.b', 'ö'],
       });
 
       expect(entities).toEqual([]);
