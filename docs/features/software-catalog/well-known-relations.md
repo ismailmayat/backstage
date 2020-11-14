@@ -61,9 +61,9 @@ component or system in question.
 A relation denoting a dependency on another entity.
 
 This relation is a general expression of being in need of that other entity for
-your functioning. It can for example be used to express that a website component
-needs a library component as part of its build, or that a service component uses
-a persistent storage resource.
+an entity to function. It can for example be used to express that a website
+component needs a library component as part of its build, or that a service
+component uses a persistent storage resource.
 
 ### `parentOf` and `childOf`
 
