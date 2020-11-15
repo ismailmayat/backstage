@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ConflictError,
-  NotFoundError,
-  PluginEndpointDiscovery,
-} from '@backstage/backend-common';
+import { ConflictError, NotFoundError } from '@backstage/backend-common';
+import { CatalogApi } from '@backstage/catalog-client';
 import { UserEntity } from '@backstage/catalog-model';
-import fetch from 'cross-fetch';
 
 type UserQuery = {
   annotations: Record<string, string>;
@@ -30,10 +26,10 @@ type UserQuery = {
  * A catalog client tailored for reading out identity data from the catalog.
  */
 export class CatalogIdentityClient {
-  private readonly discovery: PluginEndpointDiscovery;
+  private readonly catalogApi: CatalogApi;
 
-  constructor(options: { discovery: PluginEndpointDiscovery }) {
-    this.discovery = options.discovery;
+  constructor(options: { catalogApi: CatalogApi }) {
+    this.catalogApi = options.catalogApi;
   }
 
   /**
@@ -42,26 +38,14 @@ export class CatalogIdentityClient {
    * Throws a NotFoundError or ConflictError if 0 or multiple users are found.
    */
   async findUser(query: UserQuery): Promise<UserEntity> {
-    const conditions = ['kind=user'];
+    const filter: Record<string, string> = {
+      kind: 'user',
+    };
     for (const [key, value] of Object.entries(query.annotations)) {
-      const uk = encodeURIComponent(key);
-      const uv = encodeURIComponent(value);
-      conditions.push(`metadata.annotations.${uk}=${uv}`);
+      filter[`metadata.annotations.${key}`] = value;
     }
 
-    const baseUrl = await this.discovery.getBaseUrl('catalog');
-    const response = await fetch(
-      `${baseUrl}/entities?filter=${conditions.join(',')}`,
-    );
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(
-        `Request failed with ${response.status} ${response.statusText}, ${text}`,
-      );
-    }
-
-    const users: UserEntity[] = await response.json();
+    const users = await this.catalogApi.getEntities({ filter });
 
     if (users.length !== 1) {
       if (users.length > 1) {
@@ -71,6 +55,6 @@ export class CatalogIdentityClient {
       }
     }
 
-    return users[0];
+    return users[0] as UserEntity;
   }
 }
